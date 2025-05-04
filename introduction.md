@@ -1,4 +1,4 @@
-# Git Introduction!
+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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# Git Introduction!
 
 Hello Matam Students!!
 This is the git introduction part, you'll need to adjust this file and push it to a git repository of yours!
@@ -22,8 +22,8 @@ Tell us a bit about yourselves!
 	- Desirable grade in Matam: 100
 	- which TA's song you liked the most: Let It Be
 
-	- Second student's name:
-	- Favorite singer:
-	- Favorite song:
-	- Desirable grade in Matam:
-	- which TA's song you liked the most: 
+	- Second student's name: Avi Braun
+	- Favorite singer: Green Day
+	- Favorite song: 80
+	- Desirable grade in Matam: 100
+	- which TA's song you liked the most: She Looks To Me 
