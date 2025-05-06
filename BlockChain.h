@@ -17,10 +17,17 @@ typedef unsigned int (*updateFunction)(unsigned int);
 /**
 *
  * BlockChain - Defining the new BlockChain Type
- *
+ * Our BlockChain is a linked list. This way we can store multiple
+ * transactions at the same time.
 */
+struct timeStamp {
+   int year, month, day, hour, minute, second;
+};
 struct BlockChain {
-    // You may add any fields you believe are necessary
+    Transaction transaction;
+    string transactionId;
+    timeStamp transactionDate;
+    BlockChain* next;
 };
 
 
@@ -139,7 +146,6 @@ void BlockChainDumpHashed(const BlockChain& blockChain, ofstream& file);
  * @return true if the file is valid, false otherwise
 */
 bool BlockChainVerifyFile(const BlockChain& blockChain, std::ifstream& file);
-
 
 /**
  * BlockChainCompress - Compresses the given block chain based on the transaction's data.

@@ -15,6 +15,7 @@ string TransactionHashedMessage(const Transaction& transaction) {
     return hash(value, sender, receiver);
 }
 
+
 bool TransactionVerifyHashedMessage(
         const Transaction& transaction,
         string hashedMessage
