@@ -12,6 +12,7 @@
 */
 int BlockChainGetSize(const BlockChain& blockChain) {
     int count = 0;
+	//begin this way because first blockchain block is a dummy block
 	const BlockChain* current = blockChain.next;
 	while (current != nullptr) {
 		count++;
@@ -34,10 +35,10 @@ int BlockChainPersonalBalance(const BlockChain& blockChain, const string& name) 
 	int sent = 0, received = 0;
 	const BlockChain* current = blockChain.next;
 	while(current != nullptr) {
-		if(current -> transaction.sender == name) {
-			sent+= current -> transaction.value;
-		} else if (current -> transaction.receiver == name){
-			received = current -> transaction.value;
+		if(current -> sender == name) {
+			sent+= current -> value;
+		} else if (current -> receiver == name){
+			received = current -> value;
 		}
 		current = current -> next;
 	}
@@ -52,6 +53,7 @@ int BlockChainPersonalBalance(const BlockChain& blockChain, const string& name) 
  * @param sender Name of the sender
  * @param receiver Name of the receiver
  * @param timestamp String that holds the time the transaction was made
+ *
 */
 void BlockChainAppendTransaction(
         BlockChain& blockChain,
@@ -59,7 +61,18 @@ void BlockChainAppendTransaction(
         const string& sender,
         const string& receiver,
         const string& timestamp
-);
+) {
+	BlockChain* latest = new BlockChain;
+	latest->value = value;
+	latest->sender = sender;
+	latest->receiver = receiver;
+	latest->timeStamp = timestamp;
+	latest->next = blockChain.next;
+		//latest now points to the previous first block, which the dummy block pointed to
+		//now we make our orignal next, the one associated with the blockchain, point to our newest guy
+	blockChain.next = latest;
+
+}
 
 
 /**
@@ -73,7 +86,20 @@ void BlockChainAppendTransaction(
         BlockChain& blockChain,
         const Transaction& transaction,
         const string& timestamp
-);
+) {
+	{
+		BlockChain* latest = new BlockChain;
+		latest->value = transaction.value;
+		latest->sender = transaction.sender;
+		latest->receiver = transaction.receiver;
+		latest->timeStamp = timestamp;
+		latest->next = blockChain.next;
+		//latest now points to the previous first block, which the dummy block pointed to
+		//now we make our orignal next, the one associated with the blockchain, point to our newest guy
+		blockChain.next = latest;
+
+	}
+}
 
 
 /**
@@ -84,7 +110,52 @@ void BlockChainAppendTransaction(
  * @return BlockChain created from the file
  *
 */
-BlockChain BlockChainLoad(ifstream& file);
+
+BlockChain BlockChainLoad(ifstream& file) {
+	//temporary list to transfer all the data from the file to in reverse order
+	struct tempList {
+		unsigned int value;
+		string sender, receiver, timestamp;
+		tempList* next = nullptr;
+	};
+	//loop through the document and parse each line to isolate the variables
+	tempList* tempHead = nullptr;
+	string line;
+	while(std::getline(file, line)) {
+		string sender, receiver, timestamp;
+		unsigned int value;
+		// Parse sender
+		size_t pos = line.find(' ');
+		sender = line.substr(0, pos);
+		line.erase(0, pos + 1);
+
+		// Parse receiver
+		pos = line.find(' ');
+		receiver = line.substr(0, pos);
+		line.erase(0, pos + 1);
+
+		// Parse value
+		pos = line.find(' ');
+		value = std::stoul(line.substr(0, pos));
+		line.erase(0, pos + 1);
+
+		// Remaining part is timestamp
+		timestamp = line;
+
+		tempList* nextTransaction = new tempList
+		{value, sender, receiver, timestamp, tempHead};
+		tempHead = nextTransaction;
+		}
+	BlockChain blockChain;
+	blockChain.next = nullptr;
+	tempList* current = tempHead;
+	while (current != nullptr) {
+	BlockChainAppendTransaction(blockChain, current->value, current->sender,
+		current->receiver,current->timestamp);
+	current = current ->next;
+	}
+	return blockChain;
+}
 
 
 /**

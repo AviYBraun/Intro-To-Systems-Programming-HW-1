@@ -20,14 +20,14 @@ typedef unsigned int (*updateFunction)(unsigned int);
  * Our BlockChain is a linked list. This way we can store multiple
  * transactions at the same time.
 */
-struct timeStamp {
-   int year, month, day, hour, minute, second;
-};
+
 struct BlockChain {
-    Transaction transaction;
+	unsigned int value;
+	string sender;
+	string receiver;
     string transactionId;
-    timeStamp transactionDate;
-    BlockChain* next;
+    string timeStamp;
+    BlockChain* next = nullptr;
 };
 
 
@@ -83,6 +83,7 @@ void BlockChainAppendTransaction(
         const string& timestamp
 );
 
+// helper function to
 
 /**
  * BlockChainLoad - Reads data from a file and creates a new block chain
