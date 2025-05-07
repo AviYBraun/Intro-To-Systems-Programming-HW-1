@@ -118,34 +118,17 @@ BlockChain BlockChainLoad(ifstream& file) {
 		string sender, receiver, timestamp;
 		tempList* next = nullptr;
 	};
-	//loop through the document and parse each line to isolate the variables
+	//loop through the document and create a linked list for each line
 	tempList* tempHead = nullptr;
 	string line;
-	while(std::getline(file, line)) {
-		string sender, receiver, timestamp;
-		unsigned int value;
-		// Parse sender
-		size_t pos = line.find(' ');
-		sender = line.substr(0, pos);
-		line.erase(0, pos + 1);
-
-		// Parse receiver
-		pos = line.find(' ');
-		receiver = line.substr(0, pos);
-		line.erase(0, pos + 1);
-
-		// Parse value
-		pos = line.find(' ');
-		value = std::stoul(line.substr(0, pos));
-		line.erase(0, pos + 1);
-
-		// Remaining part is timestamp
-		timestamp = line;
-
+	string sender, receiver, timestamp;
+	unsigned int value;
+	while(file >> sender >> receiver >> value >> timestamp) {
 		tempList* nextTransaction = new tempList
 		{value, sender, receiver, timestamp, tempHead};
 		tempHead = nextTransaction;
 		}
+
 	BlockChain blockChain;
 	blockChain.next = nullptr;
 	tempList* current = tempHead;
@@ -154,6 +137,14 @@ BlockChain BlockChainLoad(ifstream& file) {
 		current->receiver,current->timestamp);
 	current = current ->next;
 	}
+	//delete the temporary list
+	current = tempHead;
+	while (current != nullptr) {
+		tempList* toDelete = current;
+		current = current->next;
+		delete toDelete;
+	}
+
 	return blockChain;
 }
 
@@ -174,7 +165,22 @@ BlockChain BlockChainLoad(ifstream& file) {
  * @param file File to print to
  *
 */
-void BlockChainDump(const BlockChain& blockChain, ofstream& file);
+void BlockChainDump(const BlockChain& blockChain, ofstream& file) {
+	file << "BlockChain Info:" << std::endl;
+	BlockChain* current = blockChain.next;
+	unsigned int n = 1;
+	while(current != nullptr) {
+		file << n <<"." << std::endl;
+		file << "Sender Name:" << current->sender << std::endl;
+		file << "Receiver Name:" << current->receiver << std::endl;
+		file << "Transaction Value:" << current->value << std::endl;
+		file << "Transaction timestamp :" << current->sender << std::endl;
+		n++;
+		current = current -> next;
+	}
+
+
+}
 
 
 
@@ -191,8 +197,25 @@ void BlockChainDump(const BlockChain& blockChain, ofstream& file);
  * @param file File to print to
  *
 */
-void BlockChainDumpHashed(const BlockChain& blockChain, ofstream& file);
-
+void BlockChainDumpHashed(const BlockChain& blockChain, ofstream& file) {
+	BlockChain* current = blockChain.next;
+	Transaction transaction;
+	/*print the hashed message for the first message, so that we can start the loop with endl and
+	thus at the final iteration, there will not be a new line*/
+	transaction.value = current -> value;
+	transaction.sender = current -> sender;
+	transaction.receiver = current -> receiver;
+	file << TransactionHashedMessage(transaction);
+	current = current -> next;
+	while(current != nullptr) {
+		file << std::endl;
+		transaction.value = current -> value;
+		transaction.sender = current -> sender;
+		transaction.receiver = current -> receiver;
+		file << TransactionHashedMessage(transaction) << std::endl;
+		current = current ->next;
+	}
+}
 
 /**
  * BlockChainVerifyFile - verifies that the file contains correct hashed messages of the given BlockChain
