@@ -171,10 +171,10 @@ void BlockChainDump(const BlockChain& blockChain, ofstream& file) {
 	unsigned int n = 1;
 	while(current != nullptr) {
 		file << n <<"." << std::endl;
-		file << "Sender Name:" << current->sender << std::endl;
-		file << "Receiver Name:" << current->receiver << std::endl;
-		file << "Transaction Value:" << current->value << std::endl;
-		file << "Transaction timestamp :" << current->sender << std::endl;
+		file << "Sender Name: " << current->sender << std::endl;
+		file << "Receiver Name: " << current->receiver << std::endl;
+		file << "Transaction Value: " << current->value << std::endl;
+		file << "Transaction timestamp: " << current->timeStamp << std::endl;
 		n++;
 		current = current -> next;
 	}
@@ -212,7 +212,7 @@ void BlockChainDumpHashed(const BlockChain& blockChain, ofstream& file) {
 		transaction.value = current -> value;
 		transaction.sender = current -> sender;
 		transaction.receiver = current -> receiver;
-		file << TransactionHashedMessage(transaction) << std::endl;
+		file << TransactionHashedMessage(transaction);
 		current = current ->next;
 	}
 }
@@ -231,7 +231,25 @@ void BlockChainDumpHashed(const BlockChain& blockChain, ofstream& file) {
  *
  * @return true if the file is valid, false otherwise
 */
-bool BlockChainVerifyFile(const BlockChain& blockChain, std::ifstream& file);
+bool BlockChainVerifyFile(const BlockChain& blockChain, std::ifstream& file) {
+	const BlockChain* current = blockChain.next;
+	std::string line;
+
+	while (std::getline(file, line)) {
+		if (current == nullptr) {
+			return false;
+		}
+		Transaction temp {current -> value, current -> sender, current -> receiver, };
+		if (line != TransactionHashedMessage(temp)) {
+			return false;
+		}
+
+		current = current->next;
+	}
+
+	// Blockchain has more hashes than file
+	return (current == nullptr);
+}
 
 
 /**
@@ -240,14 +258,38 @@ bool BlockChainVerifyFile(const BlockChain& blockChain, std::ifstream& file);
  *
  * @param blockChain BlockChain to compress
 */
-void BlockChainCompress(BlockChain& blockChain);
-
-
+void BlockChainCompress(BlockChain& blockChain) {
+	BlockChain* previous = &blockChain;
+	BlockChain* current = blockChain.next;
+	while(current != nullptr) {
+		//current and previous are the same. Add the value of current to previous, and
+		//point from previous to current.next. Delete next, and set current previous.next
+		if(previous->sender == current -> sender &&
+			previous->receiver == current->receiver) {
+			previous->value += current-> value;
+			previous->next = current -> next;
+			delete (current);
+			current = previous->next;
+		} else {
+			//else: previous and current are different. Previous-> current, Current -> next
+			previous = current;
+			current = current->next;
+		}
+	}
+}
 /**
  * BlockChainTransform - Update the values of each transaction in the BlockChain
  *
  * @param blockChain BlockChain to update
  * @param function a pointer to a transform function
 */
-void BlockChainTransform(BlockChain& blockChain, updateFunction function);
+void BlockChainTransform(BlockChain& blockChain, updateFunction function) {
+	//iterate through the blockchain and perform the function on value
+	BlockChain* current= blockChain.next;
+	while(current != nullptr) {
+		current->value = function(current->value);
+		current = current->next;
+	}
+
+}
 
