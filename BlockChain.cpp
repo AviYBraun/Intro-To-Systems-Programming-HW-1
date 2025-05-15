@@ -1,6 +1,7 @@
 #include "BlockChain.h"
 #include "Transaction.h"
 #include "Utilities.h"
+#include <iostream>
 
 /**
  * BlockChainGetSize - returns the number of Blocks in the BlockChain
@@ -234,17 +235,21 @@ void BlockChainDumpHashed(const BlockChain& blockChain, ofstream& file) {
 bool BlockChainVerifyFile(const BlockChain& blockChain, std::ifstream& file) {
 	const BlockChain* current = blockChain.next;
 	std::string line;
+	int index = 0;
 
 	while (std::getline(file, line)) {
 		if (current == nullptr) {
 			return false;
 		}
-		Transaction temp {current -> value, current -> sender, current -> receiver, };
-		if (line != TransactionHashedMessage(temp)) {
+		std::string expectedHash = TransactionHashedMessage({current -> value,
+		current -> sender, current -> receiver});
+
+		if (line != expectedHash) {
 			return false;
 		}
 
 		current = current->next;
+		++index;
 	}
 
 	// Blockchain has more hashes than file

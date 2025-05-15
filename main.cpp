@@ -7,6 +7,7 @@
 int main (int argc, char* argv[]) {
 	if(argc != 4) {
 	getErrorMessage();
+		return 0;
 	}
 	// open source file and load info to a temporary blockchain
 	std::ifstream sourceFile(argv[2]);
@@ -31,9 +32,9 @@ int main (int argc, char* argv[]) {
 	if(std::string(argv[1]) == "verify") {
 		std::ifstream targetFile(argv[3]);
 		if(BlockChainVerifyFile(refBlock, targetFile)) {
-		std::cout << "Verification passed";
+		std::cout << "Verification passed" << std::endl;
 		} else {
-			std::cout << "Verification failed";
+			std::cout << "Verification failed" << std::endl;
 		}
 		return 0;
 
