@@ -12,22 +12,23 @@ int main (int argc, char* argv[]) {
 	std::ifstream sourceFile(argv[2]);
 	BlockChain refBlock= BlockChainLoad(sourceFile);
 	//open target doc
-	std::ofstream targetFile(argv[3]);
 	if(std::string(argv[1]) == "format") {
+		std::ofstream targetFile(argv[3]);
 		BlockChainDump(refBlock, targetFile);
 		return 0;
 	}
 	if(std::string(argv[1]) == "hash") {
+		std::ofstream targetFile(argv[3]);
 		BlockChainDumpHashed(refBlock, targetFile);
 		return 0;
 	}
 	if(std::string(argv[1]) == "compress") {
+		std::ofstream targetFile(argv[3]);
 		BlockChainCompress(refBlock);
 		BlockChainDump(refBlock, targetFile);
 		return 0;
 	}
 	if(std::string(argv[1]) == "verify") {
-		targetFile.close();
 		std::ifstream targetFile(argv[3]);
 		if(BlockChainVerifyFile(refBlock, targetFile)) {
 		std::cout << "Verification passed";
